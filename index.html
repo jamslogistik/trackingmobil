@@ -3,335 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Riwayat Perbaikan Mobil Jamslogistik</title>
-    <!-- Pastikan Font Awesome dimuat dengan benar -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Vehicle Tracking System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --success-color: #27ae60;
-            --warning-color: #f1c40f;
-            --danger-color: #e74c3c;
-            --row-color-1: #ffffff;
-            --row-color-2: #f8f9fa;
-            --card-bg: #ffffff;
-            --card-text: #333333;
-            --card-shadow: rgba(0, 0, 0, 0.1);
-        }
+        /* ... (CSS sebelumnya tetap sama) ... */
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            background: #f8f9fa;
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 20px auto;
-            padding: 30px 20px;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 5px 30px rgba(0,0,0,0.1);
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-
-        .header i {
-            font-size: 2.5em;
-            margin-bottom: 15px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-
-        table {
+        /* New Loading Animation */
+        .loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            border-collapse: collapse;
-            background: white;
-            overflow: hidden;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
         }
 
-        th, td {
-            padding: 18px 15px;
-            text-align: center;
+        .loader {
+            width: 80px;
+            height: 80px;
+            position: relative;
+        }
+
+        .loader div {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: #3498db;
+            border-radius: 50%;
+            animation: loader 1.2s linear infinite;
+        }
+
+        .loader div:nth-child(1) { left: 8px; animation-delay: 0s; }
+        .loader div:nth-child(2) { left: 32px; animation-delay: 0.4s; }
+        .loader div:nth-child(3) { left: 56px; animation-delay: 0.8s; }
+
+        @keyframes loader {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Animasi Divisi */
+        .units-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .division-card.active .units-container {
+            max-height: 1000px;
+        }
+
+        .unit-item {
+            opacity: 0;
+            transform: translateY(-10px);
             transition: all 0.3s ease;
         }
 
-        th {
-            background: var(--primary-color);
-            color: white;
-            font-weight: 600;
-            letter-spacing: 0.5px;
+        .division-card.active .unit-item {
+            opacity: 1;
+            transform: translateY(0);
         }
 
-        tr:nth-child(odd) {
-            background-color: var(--row-color-1);
+        .card-header {
+            cursor: pointer;
+            transition: background 0.3s ease;
         }
 
-        tr:nth-child(even) {
-            background-color: var(--row-color-2);
+        .card-header:hover {
+            background: #f8f9fa;
         }
 
-        .status {
-            display: inline-block;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
+        .chevron {
+            transition: transform 0.3s ease;
         }
 
-        .selesai { background: var(--success-color); color: white; }
-        .proses { background: var(--warning-color); color: black; }
-        .menunggu { background: var(--danger-color); color: white; }
-
-        .loading {
-            text-align: center;
-            padding: 30px;
-            display: none;
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--secondary-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Tampilan Desktop (Web) */
-        @media (min-width: 769px) {
-            /* Sembunyikan label dan ikon pada tampilan desktop */
-            .label-container {
-                display: none;
-            }
-
-            /* Pastikan teks di sel tabel rata tengah */
-            td {
-                text-align: center;
-            }
-        }
-
-        /* Tampilan Mobile */
-        @media (max-width: 768px) {
-            .container {
-                margin: 10px;
-                padding: 15px;
-                border-radius: 10px;
-            }
-
-            th { display: none; }
-
-            td {
-                display: flex;
-                align-items: center;
-                text-align: left;
-                padding: 15px;
-                border-bottom: 1px solid #eee;
-                background-color: var(--card-bg);
-                color: var(--card-text);
-            }
-
-            /* Container untuk ikon dan label */
-            .label-container {
-                display: flex;
-                align-items: center;
-                flex: 0 0 40%;
-                gap: 10px; /* Tambahkan jarak antara ikon dan label */
-            }
-
-            /* Ikon */
-            .label-container i {
-                font-size: 1.2em;
-                color: var(--primary-color);
-                min-width: 20px; /* Pastikan lebar ikon konsisten */
-            }
-
-            /* Label */
-            .label-container span {
-                font-weight: bold;
-                text-transform: uppercase;
-                color: var(--primary-color);
-                white-space: nowrap; /* Hindari label terpotong */
-            }
-
-            .status {
-                flex: 0 1 55%;
-                text-align: right;
-                min-width: 100px;
-                margin: 0;
-            }
-
-            /* Card styling for mobile */
-            tr {
-                background-color: var(--card-bg) !important;
-                margin-bottom: 15px;
-                display: block;
-                box-shadow: 0 4px 10px var(--card-shadow);
-                border-radius: 12px;
-                overflow: hidden;
-                transition: transform 0.3s ease, box-shadow 0.3s ease;
-            }
-
-            tr:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-            }
-        }
-
-        @media (max-width: 480px) {
-            td {
-                font-size: 14px;
-                padding: 12px;
-                flex-wrap: wrap;
-            }
-            
-            .label-container {
-                flex: 0 0 100%;
-                margin-bottom: 8px;
-                gap: 8px; /* Kurangi jarak pada layar kecil */
-            }
-            
-            .status {
-                flex: 0 0 100%;
-                text-align: left;
-                min-width: auto;
-                padding: 6px 12px;
-                margin-top: 5px;
-            }
-            
-            .header h2 {
-                font-size: 1.4em;
-                padding: 0 10px;
-            }
-
-            /* Improve card spacing on small devices */
-            tr {
-                margin-bottom: 10px;
-            }
+        .division-card.active .chevron {
+            transform: rotate(180deg);
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <i class="fas fa-car"></i>
-            <h2>Riwayat Perbaikan Mobil Jamslogistik</h2>
-        </div>
-        
-        <div class="loading">
-            <div class="spinner"></div>
+            <h1><i class="fas fa-car-side"></i> Vehicle Tracking System</h1>
+            <p>Real-time monitoring kendaraan perusahaan</p>
         </div>
 
-        <table id="hasil" style="display:none;">
-            <thead>
-                <tr>
-                    <th>Plat Nomor</th>
-                    <th>Tanggal</th>
-                    <th>Jenis Perbaikan</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody id="dataRiwayat"></tbody>
-        </table>
+        <div class="loading-container" id="loading">
+            <div class="loader">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+
+        <div id="content" style="display: none;">
+            <div class="division-group" id="divisions-container"></div>
+        </div>
     </div>
 
     <script>
-        function getQueryParam(param) {
-            let params = new URLSearchParams(window.location.search);
-            return params.get(param);
-        }
+        const COLORS = {
+            'GUDANG': '#3498db',
+            'CP SUKA': '#e67e22',
+            'HYBRID': '#2ecc71'
+        };
 
-        function formatTanggal(dateString) {
-            const options = { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' };
-            return new Date(dateString).toLocaleDateString('id-ID', options);
-        }
-
-        async function cariRiwayat(barcode) {
-            document.querySelector('.loading').style.display = 'block';
+        async function fetchData() {
             try {
-                if (!barcode) return;
-                let url = `https://script.google.com/macros/s/AKfycbxeU9s68S3ahTg4u882HtL9FDBDiT-Gjx4mrF2ZYpJaawAxX7uu_tNOzZGhd4EYE-I/exec?barcode=${barcode}`;
-                let response = await fetch(url);
-                let data = await response.json();
-
-                data.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
-
-                let tabel = document.getElementById("hasil");
-                let tbody = document.getElementById("dataRiwayat");
-                tbody.innerHTML = "";
-
-                if (data.length > 0) {
-                    data.forEach(item => {
-                        let tanggal = formatTanggal(item.tanggal);
-                        let statusClass = item.status.toLowerCase() === "selesai" ? "selesai" :
-                                       item.status.toLowerCase() === "proses" ? "proses" : "menunggu";
-                        let row = `<tr>
-                            <td>
-                                <div class="label-container">
-                                    <i class="fas fa-car"></i>
-                                    <span>Plat Nomor</span>
-                                </div>
-                                ${item.plat}
-                            </td>
-                            <td>
-                                <div class="label-container">
-                                    <i class="fas fa-calendar-alt"></i>
-                                    <span>Tanggal</span>
-                                </div>
-                                ${tanggal}
-                            </td>
-                            <td>
-                                <div class="label-container">
-                                    <i class="fas fa-cogs"></i>
-                                    <span>Jenis Perbaikan</span>
-                                </div>
-                                ${item.jenis}
-                            </td>
-                            <td>
-                                <div class="label-container">
-                                    <i class="fas fa-info-circle"></i>
-                                    <span>Status</span>
-                                </div>
-                                <span class="status ${statusClass}">${item.status}</span>
-                            </td>
-                        </tr>`;
-                        tbody.innerHTML += row;
-                    });
-                    tabel.style.display = "table";
-                } else {
-                    alert("Data tidak ditemukan!");
-                    tabel.style.display = "none";
-                }
+                const API_URL = 'https://script.google.com/macros/s/AKfycbyq_wsHOT3TI8-Tk31YiA_vPDAl5j_cIci0ztoV1AgAcnWay1DEzrEBoo1jrY7DkdLo/exec';
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+                
+                renderData(data);
             } catch (error) {
                 console.error('Error:', error);
-                alert("Terjadi kesalahan saat memuat data!");
-            } finally {
-                document.querySelector('.loading').style.display = 'none';
+                document.getElementById('loading').innerHTML = 
+                    '<p style="color: red">Gagal memuat data. Silakan refresh halaman.</p>';
             }
         }
 
-        let barcode = getQueryParam("barcode");
-        if (barcode) {
-            cariRiwayat(barcode);
-        } else {
-            alert("Parameter barcode tidak ditemukan!");
+        function renderData(data) {
+            const container = document.getElementById('divisions-container');
+            
+            for(const [divisionName, units] of Object.entries(data)) {
+                const formattedDivisionName = divisionName.replace(/_/g, ' ');
+                
+                const divisionCard = document.createElement('div');
+                divisionCard.className = 'division-card';
+                divisionCard.innerHTML = `
+                    <div class="card-header">
+                        <i class="fas fa-truck"></i>
+                        <h2>${formattedDivisionName.toUpperCase()}</h2>
+                        <i class="fas fa-chevron-down chevron"></i>
+                    </div>
+                    <div class="units-container">
+                        ${units.map((unit, index) => `
+                            <div class="unit-item" style="transition-delay: ${index * 0.1}s">
+                                <span>${unit.name}</span>
+                                <button 
+                                    class="track-btn" 
+                                    onclick="window.open('${unit.link}', '_blank')"
+                                    style="background: ${COLORS[divisionName.toUpperCase()]}">
+                                    <i class="fas fa-map-marker-alt"></i> Track
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+                // Tambahkan efek klik
+                const header = divisionCard.querySelector('.card-header');
+                header.addEventListener('click', () => {
+                    divisionCard.classList.toggle('active');
+                });
+
+                container.appendChild(divisionCard);
+            }
         }
+
+        fetchData();
     </script>
 </body>
 </html>
